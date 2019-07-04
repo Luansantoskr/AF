@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/vue-session.js"></script>
+    <script src="js/axios.min.js"></script>
+</head>
+ 
+<body>
+    <div class=container>
+        <div id="app">
+            <a v-if="flagSair" href="user-insert.html" class="btn btn-primary">Inserir</a>
+            <button v-if="flagSair" class="btn btn-danger" type="button" @click="logout">Sair</button>
+            <a v-if="flagLogin" href="user-insert.html" class="btn btn-warning">Adicionar evento</a>
+            <h3>Lista de Usuários</h3>
+            <ul>
+                <li v-for="usuario in usuarios">
+                    <a :href="'user-view.html?id='+usuario.id">{{usuario.username}}</a>
+                </li>
+            </ul>
+        </div>
+        <script>
+            var app = new Vue({
+                el: "#app",
+                data: {
+                    url: "http://localhost:8080/rest_persistence/api/users",
+                    usuarios: [],
+                    flagSair: false,
+                    flagLogin: true
+                },
+                created() {
+                    if (this.$session.exists()) {
+                        this.flagSair = true;
+                        this.flagLogin = false;
+                    }
+                    vm = this;
+                    axios.get(this.url).then(function (r) {
+                        if(r.data.user.length > 1) {
+                            vm.usuarios = r.data.user;    
+                        } else {
+                            vm.usuarios = r.data;
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+                },
+                methods: {
+                    logout() {
+                        this.$session.destroy()
+                        this.flagSair = false;
+                        this.flagLogin = true;                        
+                    }
+                }
+            });
+        </script>
+</body>
+ 
+</html>
